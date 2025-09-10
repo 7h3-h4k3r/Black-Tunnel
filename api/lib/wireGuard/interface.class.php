@@ -150,12 +150,61 @@ class Interfaces
         lets get a all available ips with the help of ipList() 
         that give a array -> array data move into Mongo ip insert Many(array)
     */ 
-    public function setConfiguration()
+    private  function setConfiguration()
     {
         $result  = $output = 0;
-        exec('cd wgctl && ./main.py '.$this->interface_name.' '.$this->cidr.' '.$this->port,$output,$return);
-        $this->result = $return;    
+        exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./main.py '.$this->interface_name.' '.$this->cidr.' '.$this->port,$output,$return);
+        if ($result==0){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
+    public static function up_interface($interface)
+    {
+        $result  = $output = 0;
+        
+        try{
+            exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./up.py '.$interface,$output,$return);
+            if ($result==0){
+                return true;
+            }
+        }
+        catch (Exception  $e){
+            throw new Exception($e->getMessage());
+        }
+    }
+    public static function del_interface($interface)
+    {
+        $result  = $output = 0;
+        
+        try{
+            exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./removeInterface.py '.$interface,$output,$return);
+            if ($result==0){
+                return true;
+            }
+        }
+        catch (Exception  $e){
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public static function down_interface($interface)
+    {
+        $result  = $output = 0;
+        
+        try{
+            exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./down.py '.$interface,$output,$return);
+            if ($result==0){
+                return true;
+            }
+        }
+        catch (Exception  $e){
+            throw new Exception($e->getMessage());
+        }
+    }
+
 
 
     public function  __destruct(){
@@ -187,7 +236,12 @@ class Interfaces
             }
             $result = $this->db->networks->{$this->interface_name}->insertMany($ips_arr);
             Database::setIndex($this->interface_name);
-            self::$result = true;
+            if ($this->setConfiguration()){
+                self::$result = true;
+            }
+            else{
+                throw new Exception('server side configuration failed');
+            }
             fclose($filehandle);
         }
         

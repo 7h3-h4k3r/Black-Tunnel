@@ -72,12 +72,6 @@ class wgctl:
             with open(self.keycase+'/../'+config_file,'w') as file:
                 file.write(conf)
                 self.route = True
-            subprocess.run(
-                ['wg-quick up ' +self.args[0]],
-                cwd=self.keycase,
-                shell=True,
-                check=True
-            )
             file.close()
         else:  
             self.route = False

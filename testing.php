@@ -9,23 +9,34 @@
 
 // $wg = new  Wireguard('wg0');
 // $wg->getUserData('dharfgdgani@gmail.com','0narZE9e6q9mHe3UNEF9opyNXCo/6p54W9yR+YbOchA=');
-class Test {
-    public static $result = false;
 
-    public function __destruct() {
-        // when object is destroyed, change static
-        self::$result = true;
-    }
+function setConfiguration()
+{
+    $result  = $output = 0;
+    exec('whoami',$output);
+    print_r($output);
+    exec('cd wgctl && sudo ./main.py wg0 172.0.0.1 8783',$output,$return);
+    print($result);  
 }
 
-echo "Before object: " . (Test::$result ? "true" : "false") . PHP_EOL;
+setConfiguration();
+// class Test {
+//     public static $result = false;
 
-$obj = new Test();
+//     public function __destruct() {
+//         // when object is destroyed, change static
+//         self::$result = true;
+//     }
+// }
 
-echo "After object created: " . (Test::$result ? "true" : "false") . PHP_EOL;
+// echo "Before object: " . (Test::$result ? "true" : "false") . PHP_EOL;
 
-// destroy explicitly
-unset($obj);
+// $obj = new Test();
 
-echo "After unset: " . (Test::$result ? "true" : "false") . PHP_EOL;
-?>
+// echo "After object created: " . (Test::$result ? "true" : "false") . PHP_EOL;
+
+// // destroy explicitly
+// unset($obj);
+
+// echo "After unset: " . (Test::$result ? "true" : "false") . PHP_EOL;
+// ?>
