@@ -48,39 +48,25 @@ class Database {
 
 
 
-    public static function setIndex($collectionName) {
-    try {
-        $client = new MongoDB\Client("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.5.7");
+    public static function setIndex($collection) {
+        try {
+            $client = new MongoDB\Client("mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.5.7");
+            $collection = $client->networks->$collection;
+            $collection->createIndex(
+                ['owner' => 1],
+                ['unique' => true, 'partialFilterExpression' => ['owner' => ['$type' => 'string']]]
+            );
 
-        $command = new MongoDB\Driver\Command([
-            'createIndexes' => $collectionName,
-            'indexes' => [
-                [
-                    'key' => ['owner' => 1],
-                    'name' => 'unique_owner',
-                    'unique' => true,
-                    'partialFilterExpression' => [
-                        'owner' => ['$exists' => true, '$ne' => null]
-                    ]
-                ],
-                [
-                    'key' => ['public_key' => 1],
-                    'name' => 'unique_public_key',
-                    'unique' => true,
-                    'partialFilterExpression' => [
-                        'public_key' => ['$exists' => true, '$ne' => null]
-                    ]
-                ]
-            ]
-        ]);
+            $collection->createIndex(
+                ['public_key' => 1],
+                ['unique' => true, 'partialFilterExpression' => ['public_key' => ['$type' => 'string']]]
+            );
 
-        $client->networks->executeCommand($collectionName,$command);
-
-    } catch (Exception $e) {
-        throw new Exception('Report to admin: ' . $e->getMessage());
+            
+        } catch (Exception $e) {
+            throw new Exception('Report to admin: ' . $e->getMessage());
+        }
     }
+
 }
 
-
-    
-}

@@ -6,7 +6,7 @@ class Interfaces
     private $cidr;
     private $port;
     public  $db = NULL;
-    public static $result = FALSE;
+    public static $result = false;
     private $filename;
     public  function __construct($interface_name,$cidr,$port)
     {
@@ -187,12 +187,13 @@ class Interfaces
             }
             $result = $this->db->networks->{$this->interface_name}->insertMany($ips_arr);
             Database::setIndex($this->interface_name);
+            self::$result = true;
             fclose($filehandle);
         }
         
         catch (Exception $e)
         {
-            Interfaces::$result = FALSE;
+            self::$result = FALSE;
             throw new Exception($e->getMessage());
         }
     }
