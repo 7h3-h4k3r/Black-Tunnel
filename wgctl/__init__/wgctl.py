@@ -4,7 +4,7 @@ class wgctl:
 
     def __init__(self,args):
         self.args  = args 
-        self.basecase = '../config/authkey'
+        self.basecase = '/etc/wireguard'
         self.keycase = self.basecase+'/'+args[0]
         self.route =None
         self.keyname = ['privatekey','publickey']
@@ -65,11 +65,22 @@ class wgctl:
     
 
     def genConf(self):
-        if self.genKey():
-            print('config is Call')
+        genKey_ouput = self.genKey()
+        if genKey_ouput:
             conf = self.genServerConf()
-            with open(self.basecase+'/../'+self.args[0],'w') as file:
+            config_file = self.args[0]+'.conf'
+            with open(self.keycase+'/../'+config_file,'w') as file:
                 file.write(conf)
-                self.route = True 
+                self.route = True
+            subprocess.run(
+                ['wg-quick up ' +self.args[0]],
+                cwd=self.keycase,
+                shell=True,
+                check=True
+            )
             file.close()
+        else:  
+            self.route = False
+
+        
         

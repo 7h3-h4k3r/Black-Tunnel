@@ -6,7 +6,7 @@ class Interfaces
     private $cidr;
     private $port;
     public  $db = NULL;
-    public $result = FALSE;
+    public static $result = FALSE;
     private $filename;
     public  function __construct($interface_name,$cidr,$port)
     {
@@ -31,6 +31,10 @@ class Interfaces
         
     }
 
+    public static function delINterface($interface)
+    {
+
+    }
     public function getGatway($ip,$cidr){
         $ipLong = ip2long($ip);
         $mask = -1 << (32 - $cidr);
@@ -76,7 +80,6 @@ class Interfaces
                 ]
             );
             
-            $this->result = TRUE;
         }
         catch (MongoDB\Driver\Exception\Exception $e)
         {
@@ -150,8 +153,7 @@ class Interfaces
     public function setConfiguration()
     {
         $result  = $output = 0;
-        exec('cd wgctl && python3 main.py '.$this->interface_name.' '.$this->cidr.' '.$this->port,$output,$return);
-        // print_r($output,$result);
+        exec('cd wgctl && ./main.py '.$this->interface_name.' '.$this->cidr.' '.$this->port,$output,$return);
         $this->result = $return;    
     }
 
@@ -176,7 +178,7 @@ class Interfaces
                     if(!empty($line)){
                         $ip = trim($line).'/32';
                         $count = $count + 1;
-                        array_push($ips_arr,['_id'=> $count,'ip'=>$ip,'owner'=>null,'public key'=>null,'folder'=>$filename,'create_at' => time(),'active_at' =>'']);
+                        array_push($ips_arr,['_id'=> $count,'ip'=>$ip,'owner'=>null,'public_key'=>null,'folder'=>$filename,'create_at' => time(),'active_at' =>'']);
                     }
                 }
             }
@@ -190,6 +192,7 @@ class Interfaces
         
         catch (Exception $e)
         {
+            Interfaces::$result = FALSE;
             throw new Exception($e->getMessage());
         }
     }

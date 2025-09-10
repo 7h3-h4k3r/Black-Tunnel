@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 from __init__.wgctl import wgctl
 if __name__ == '__main__':
@@ -6,4 +7,5 @@ if __name__ == '__main__':
         wgctl_.genConf()
         sys.exit(wgctl_.route)
     else:
+        print('Argument MIssed')
         sys.exit(-1)
