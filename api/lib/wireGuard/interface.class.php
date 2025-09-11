@@ -31,10 +31,7 @@ class Interfaces
         
     }
 
-    public static function delINterface($interface)
-    {
-
-    }
+    
     public function getGatway($ip,$cidr){
         $ipLong = ip2long($ip);
         $mask = -1 << (32 - $cidr);
@@ -167,7 +164,7 @@ class Interfaces
         
         try{
             exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./up.py '.$interface,$output,$return);
-            if ($result==0){
+            if ($return==0){
                 return true;
             }
         }
@@ -178,31 +175,40 @@ class Interfaces
     public static function del_interface($interface)
     {
         $result  = $output = 0;
-        
+        $db = Database::getMongoConn();
         try{
             exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./removeInterface.py '.$interface,$output,$return);
-            if ($result==0){
-                return true;
+            if ($return==0){
+                $result =  true;
             }
+            $result = $db->vpn->wireguard->deleteOne(['Interface' => $interface]);
+            $result = $result->getDeletedCount();
+            if ($result > 0) {
+                $result = $db->networks->{$interface}->drop();
+            } 
+            return $result;
         }
         catch (Exception  $e){
             throw new Exception($e->getMessage());
         }
+        
     }
 
     public static function down_interface($interface)
     {
         $result  = $output = 0;
-        
+    
         try{
             exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./down.py '.$interface,$output,$return);
-            if ($result==0){
-                return true;
+            if ($return==0){
+                $result =  true;
             }
         }
         catch (Exception  $e){
             throw new Exception($e->getMessage());
         }
+
+        
     }
 
 
