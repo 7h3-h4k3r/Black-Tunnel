@@ -6,14 +6,14 @@ ${basename(__FILE__, '.php')} = function(){
         unset($inter);
         if(Interfaces::$result){
             $data = [
-                'message' => 'success',
+                'message' => 'Interface authentication Granted',
                 'result' => Interfaces::$result
             ];
             $data = $this->json($data);
             $this->response($data, 200);
         } else {
             $data = [
-                'message' => 'error',
+                'message' => 'Interface already used Auth Failed',
                 'result'=>Interfaces::$result
             ];
             $data = $this->json($data);

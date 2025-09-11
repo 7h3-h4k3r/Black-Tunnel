@@ -23,7 +23,7 @@ class Wireguard
         on (version v1.0)
     */
 
-    public function getUserData($email,$publicKey)
+    public function setUserData($email,$publicKey)
     {
         // if($publicKey == NULL){
         //     //future Update
@@ -36,14 +36,16 @@ class Wireguard
             {
                 $result = $this->db->networks->{$this->interface}->updateOne(
                     ['ip' => $allocation_ip],
-                    ['$set' => ['owner' => $email,'public key' => $publicKey,'active_at' => date('l jS \of F Y h:i:s A')]]
+                    ['$set' => ['owner' => $email,'public_key' => $publicKey,'active_at' => date('l jS \of F Y h:i:s A')]]
                 );
                 
                 if($result->getMatchedCount() == $result->getModifiedCount())
-                    print('succesfully addedd');
+                    return $allocation_ip;
                 else 
                     throw new Exception('somethink is worng data Invalied');
             }
+
+            return false;
 
         }
         catch (Exception $e){
@@ -78,7 +80,7 @@ class Wireguard
 
     /* add peer on wireGuard help of shell_exe() or exec() funciton's
     return connection details if success or retunr peer add failed*/
-    public function addPeer($ip,$publicKey){
+    private function addPeer($ip,$publicKey){
         $cmd = "sudo wg set ".$this->interface." peer "."\"$publicKey\""." allowed-ips ".$ip;
         try{
             exec($cmd,$this->output,$this->return);
@@ -87,7 +89,7 @@ class Wireguard
                 print($ip);
             }
             else{
-                print('notind happen');
+               throw new Exception('authentication failed try different wireguard PublicKey');
             }
         }
         catch(Exception $e){

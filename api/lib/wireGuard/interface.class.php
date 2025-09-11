@@ -174,19 +174,15 @@ class Interfaces
     }
     public static function del_interface($interface)
     {
-        $result  = $output = 0;
+        $result  = $output = false;
         $db = Database::getMongoConn();
         try{
-            exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./removeInterface.py '.$interface,$output,$return);
-            if ($return==0){
-                $result =  true;
-            }
             $result = $db->vpn->wireguard->deleteOne(['Interface' => $interface]);
-            $result = $result->getDeletedCount();
-            if ($result > 0) {
+            if ($result->getDeletedCount() == 1) {
                 $result = $db->networks->{$interface}->drop();
+                return true;
             } 
-            return $result;
+            return false;
         }
         catch (Exception  $e){
             throw new Exception($e->getMessage());

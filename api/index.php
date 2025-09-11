@@ -6,7 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/api/lib/Credentials/Signup.class.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/api/lib/Credentials/User.class.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/api/lib/Authentication/Auth.class.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/api/lib/wireGuard/interface.class.php");
-
+require_once($_SERVER['DOCUMENT_ROOT']."/api/lib/wireGuard/wireguard.class.php");
 
 class API extends REST {
     

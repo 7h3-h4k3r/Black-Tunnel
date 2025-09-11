@@ -6,14 +6,14 @@ ${basename(__FILE__, '.php')} = function(){
         $result = Interfaces::del_interface($interface);
         if($result){
             $data = [
-                'message' => 'success',
-                'result' => 'wg-quick up '.$interface.'service down and Deleted The Interface Granted'
+                'message' => 'wg-wireguard '.$interface.' Deleted The Interface Granted',
+                'result' => $result
             ];
             $data = $this->json($data);
             $this->response($data, 200);
         } else {
             $data = [
-                'message' => 'error',
+                'message' => 'wg-wireguard '.$interface.' Deleted The Interface Failed',
                 'result'=>$result
             ];
             $data = $this->json($data);
