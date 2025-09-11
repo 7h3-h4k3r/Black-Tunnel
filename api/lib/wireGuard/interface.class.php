@@ -177,12 +177,16 @@ class Interfaces
         $result  = $output = false;
         $db = Database::getMongoConn();
         try{
+            exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./removeInterface.py '.$interface,$output,$return);
+         
             $result = $db->vpn->wireguard->deleteOne(['Interface' => $interface]);
             if ($result->getDeletedCount() == 1) {
                 $result = $db->networks->{$interface}->drop();
                 return true;
             } 
             return false;
+            
+            
         }
         catch (Exception  $e){
             throw new Exception($e->getMessage());
@@ -199,6 +203,7 @@ class Interfaces
             if ($return==0){
                 $result =  true;
             }
+            return true;
         }
         catch (Exception  $e){
             throw new Exception($e->getMessage());
