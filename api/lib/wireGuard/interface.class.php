@@ -73,7 +73,8 @@ class Interfaces
                 'cidr'=>$subnet[1],
                 'ip' =>$gatway,
                 'Interface'=>$this->interface_name,
-                'port'=>$this->port
+                'port'=>$this->port,
+                'state'=>false
                 ]
             );
             
@@ -161,12 +162,28 @@ class Interfaces
     public static function up_interface($interface)
     {
         $result  = $output = 0;
-        
+        $db = Database::getMongoConn();
         try{
-            exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./up.py '.$interface,$output,$return);
-            if ($return==0){
-                return true;
+            $result = $db->vpn->wireguard->findOne(['Interface'=>$interface]);
+            if($result==null){
+                throw new Exception('/wg-status/ Interface not Yet ');
             }
+            if ($result['state']==false){
+                exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./up.py '.$interface,$output,$return);
+                if ($return==0){
+                     $result = $db->vpn->wireguard->updateOne(
+                    ['Interface' => $interface],
+                    ['$set' => ['state'=>true]]
+                    );
+                    return true;
+                }
+               
+            }
+            else{
+                throw new Exception('/wg-status/ Interface already up');
+            }
+                
+            
         }
         catch (Exception  $e){
             throw new Exception($e->getMessage());
@@ -196,14 +213,30 @@ class Interfaces
 
     public static function down_interface($interface)
     {
+
         $result  = $output = 0;
-    
+        $db = Database::getMongoConn();
         try{
-            exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./down.py '.$interface,$output,$return);
-            if ($return==0){
-                $result =  true;
+            $result = $db->vpn->wireguard->findOne(['Interface'=>$interface]);
+            if($result==null){
+                throw new Exception('/wg-status/ Interface not Yet ');
             }
-            return true;
+            if ($result['state']){
+                exec('cd '.$_SERVER['DOCUMENT_ROOT'].'/wgctl && ./down.py '.$interface,$output,$return);
+                if ($return==0){
+                     $result = $db->vpn->wireguard->updateOne(
+                    ['Interface' => $interface],
+                    ['$set' => ['state'=>false]]
+                    );
+                    return true;
+                }
+               
+            }
+            else{
+                throw new Exception('/wg-status/ Interface already down');
+            }
+                
+            
         }
         catch (Exception  $e){
             throw new Exception($e->getMessage());

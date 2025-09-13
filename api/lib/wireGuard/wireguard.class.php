@@ -29,6 +29,8 @@ class Wireguard
         //     //future Update
         // }
         $allocation_ip = $this->getNextIP();
+        $client_peer_data = array();
+        array_push($client_peer_data,$this->getPublickey());
         try{
 
             $result = $this->db->networks->{$this->interface}->updateOne(
@@ -38,7 +40,8 @@ class Wireguard
                 
             if($result->getMatchedCount() == $result->getModifiedCount()){
                 $this->addPeer($allocation_ip,$publicKey);
-                return $allocation_ip;
+                array_push($client_peer_data,$allocation_ip);
+                return $client_peer_data;
             }
         }
         catch (Exception $e){
@@ -121,8 +124,22 @@ class Wireguard
     }
 
     /* checking  single Peer is active or not or any data trastation Error  */
-    public function getpeer($publicKey){
-
+    public function getPeer($pkey){
+        $output = shell_exec("sudo ".$this->interface." show | grep -A4 '$pkey'");
+        $output = explode(PHP_EOL,$output);
+        $peercount = 0;
+        $peer =  array();
+        foreach ($output as $value){
+            if(str_starts_with($value,'peer:')){
+                $peercount ++;
+            }
+            if($peercount<=1 and !empty(trim($value))){
+                $value = explode(":",trim($value));
+                $peer[$value[0]] = $value[1];
+            }
+            
+        }
+        return $peer;
     }
     
     //
@@ -145,7 +162,11 @@ class Wireguard
     
     }
 
-
+    public function getPublickey(){
+        $output = shell_exec("sudo wg show " . escapeshellarg($this->interface) . " | grep 'public key'");
+        $output = explode(':',$output); 
+        return $output[1];
+    }
     /* its deleted all un-available Data's on
     WireGuard interface , and return all deleted data Once
     
