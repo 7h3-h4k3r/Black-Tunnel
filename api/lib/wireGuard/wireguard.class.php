@@ -29,27 +29,26 @@ class Wireguard
         //     //future Update
         // }
         $allocation_ip = $this->getNextIP();
-        $this->addPeer($allocation_ip,$publicKey);
         try{
 
-            if($this->return == 0)
-            {
-                $result = $this->db->networks->{$this->interface}->updateOne(
-                    ['ip' => $allocation_ip],
-                    ['$set' => ['owner' => $email,'public_key' => $publicKey,'active_at' => date('l jS \of F Y h:i:s A')]]
-                );
+            $result = $this->db->networks->{$this->interface}->updateOne(
+                ['ip' => $allocation_ip],
+                ['$set' => ['owner' => $email,'public_key' => $publicKey,'active_at' => date('l jS \of F Y h:i:s A')]]
+            );
                 
-                if($result->getMatchedCount() == $result->getModifiedCount())
-                    return $allocation_ip;
-                else 
-                    throw new Exception('somethink is worng data Invalied');
+            if($result->getMatchedCount() == $result->getModifiedCount()){
+                $this->addPeer($allocation_ip,$publicKey);
+                return $allocation_ip;
             }
-
-            return false;
-
         }
         catch (Exception $e){
-            throw new Exception($e->getMessage());
+            $error = $e->getMessage();
+            if (strpos($error,'E11000') !== FALSE){
+                throw new Exception('Credantial Failed [!] invalidate Email or PublicKey');
+            }
+            else{
+                throw new Exception($error);
+            }
         }
     }
 
@@ -67,7 +66,7 @@ class Wireguard
                 ['public key' => null],
                 [
                     'projection' => ['ip'=>1],
-                    'sort' => ['_id'=>-1]
+                    'sort' => ['_id'=>1]
                 ]
             );
             return $result['ip'];
@@ -86,7 +85,7 @@ class Wireguard
             exec($cmd,$this->output,$this->return);
 
             if($this->return == 0){
-                print($ip);
+               return true;
             }
             else{
                throw new Exception('authentication failed try different wireguard PublicKey');
@@ -103,9 +102,18 @@ class Wireguard
     /* Deleted peer on wireGuard help of shell_exe() or exec() funciton's
      and return 0 if success or return -1*/
     public function delPeer($publicKey){
-        $cmd =  "sudo wg set "."$this->interface"." peer "."\"$publicKey\""." remove";
         try{
-            exec($cmd,$this->output,$this->return);
+            $result = $this->db->networks->{$this->interface}->updateOne(
+                ['public_key' => $publicKey],
+                ['$set' => ['owner' => null,'public_key' => null,'create_at' => date('l jS \of F Y h:i:s A').'{reCreate}']]
+                );
+            $cmd =  "sudo wg set "."$this->interface"." peer "."\"$publicKey\""." remove";
+            if($result->getModifiedCount()!=0){
+                exec($cmd,$this->output,$this->return);
+                return true;
+            }
+           
+            return false;
         }
         catch(Exception $e){
             throw new Exception($e->getMessage());
