@@ -235,6 +235,5 @@ MIT License – see [LICENSE](https://github.com/7h3-h4k3r/Black-Tunnel?tab=MIT-
 Developed by [7h3-h4k3r](https://github.com/7h3-h4k3r)
 
 ```
-
-Would you like me to make it **more minimal (for a public repo)** or keep this **developer-focused detailed version**?
+EAT , CODE , SLEEP
 ```
