@@ -1,6 +1,3 @@
-Here’s a **clean, professional `README.md`** for **Black Tunnel v0.1**, based on the project structure and your notes.
-It’s concise enough for GitHub yet detailed enough for developers to understand the architecture.
-
 ```markdown
 # Black Tunnel v0.1
 
